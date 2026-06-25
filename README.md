@@ -17,7 +17,8 @@ STSPIN32G4 是 STMicroelectronics 的一款集成度很高的系统级封装 (Si
 | **固件 IDE** | STM32CubeIDE + Keil MDK |
 | **HAL 库** | STM32 HAL Library (通过 STM32CubeMX 生成) |
 | **RTOS** | FreeRTOS |
-| **调试工具** | DAP-Link (CMSIS-DAP) |
+| **调试工具** | DAP-Link (CMSIS-DAP) + RTT Viewer |
+| **3D 模型** | 机械结构 / 外壳设计 |
 
 ## 项目结构
 
