@@ -1,0 +1,32 @@
+# Altium Designer binary files — treat as binary to prevent merge conflicts
+*.SchDoc     binary
+*.PcbDoc     binary
+*.SchLib     binary
+*.PcbLib     binary
+*.PrjPcb     binary
+*.Harness    binary
+*.DsnWrk     binary
+
+# Altium history / zip archives
+*.Zip        binary
+
+# Gerber / fabrication outputs
+*.GBR        binary
+*.GTL        binary
+*.GBL        binary
+*.GTS        binary
+*.GBS        binary
+*.GTO        binary
+*.GBO        binary
+*.GM*        binary
+*.DRL        binary
+
+# Image previews
+*.png        binary
+*.jpg        binary
+*.bmp        binary
+
+# Documents
+*.pdf        binary
+*.xlsx       binary
+*.docx       binary
