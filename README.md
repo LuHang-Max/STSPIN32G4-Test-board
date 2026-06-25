@@ -16,9 +16,8 @@ STSPIN32G4 是 STMicroelectronics 的一款集成度很高的系统级封装 (Si
 | **硬件设计** | Altium Designer v23.3.1 |
 | **固件 IDE** | STM32CubeIDE + Keil MDK |
 | **HAL 库** | STM32 HAL Library (通过 STM32CubeMX 生成) |
-| **RTOS** | RT-Thread (RTT) |
-| **调试工具** | SEGGER J-Link + RTT Viewer |
-| **3D 模型** | 机械结构 / 外壳设计 |
+| **RTOS** | FreeRTOS |
+| **调试工具** | DAP-Link (CMSIS-DAP) |
 
 ## 项目结构
 
@@ -35,18 +34,24 @@ STSPIN32G4-Test-board/
 │       ├── HMI_SENSOR.SchDoc           # 人机交互 & 传感器
 │       ├── MotoCtrl_Rev_1.0.0.PcbDoc   # PCB 布局
 │       ├── STSPIN32G4-Test-board.SchLib # 原理图符号库
-│       └── STSPIN32G4-Test-board.PcbLib # PCB 封装库
+│       ├── STSPIN32G4-Test-board.PcbLib # PCB 封装库
+│       └── manufacturing/             # 制造输出
+│           ├── 1_Gerber/              # Gerber 光绘
+│           ├── 2_BOM/                 # BOM 物料清单
+│           └── 3_PickPlace/           # 贴片坐标文件
 ├── firmware/                     # STSPIN32G4 固件
 │   ├── Core/Inc/                 # 用户头文件
 │   ├── Core/Src/                 # 用户源码
 │   ├── Drivers/                  # HAL 驱动（CubeMX 生成）
 │   ├── Middleware/               # 中间件（FreeRTOS 等）
-│   ├── RTT/                      # SEGGER RTT 源码
+│   ├── FreeRTOS/                 # FreeRTOS 源码及配置
 │   ├── STM32CubeIDE/             # CubeIDE 工程
-│   └── Keil/                     # Keil MDK 工程
+│   ├── Keil/                     # Keil MDK 工程
+│   └── tests/                    # 单元测试
 ├── docs/                         # 硬件设计文档
 │   ├── block-diagram.md          # 系统框图
-│   └── pin-mapping.md            # 引脚分配表
+│   ├── pin-mapping.md            # 引脚分配表
+│   └── BOM.md                    # BOM 物料清单模板
 ├── datasheets/                   # 数据手册索引
 ├── mechanical/                   # 3D 模型 & 外壳设计
 │   └── models/
@@ -65,10 +70,14 @@ STSPIN32G4-Test-board/
 ### 固件开发
 
 1. 安装 **STM32CubeIDE** 和 **Keil MDK**
-2. 用 STM32CubeMX 生成初始化代码（配置 STSPIN32G4）
+2. 用 STM32CubeMX 生成初始化代码（配置 STSPIN32G4，勾选 FreeRTOS）
 3. 将 HAL 驱动放入 `firmware/Drivers/`
-4. 将 RT-Thread 源码放入 `firmware/RTT/`
+4. 将 FreeRTOS 源码放入 `firmware/Middleware/FreeRTOS/`（CubeMX 自动）或 `firmware/FreeRTOS/`（手动）
 5. 在 `firmware/Core/Src/main.c` 中编写应用逻辑
+
+### 调试
+
+用 **DAP-Link** 连接 SWD 接口进行调试和烧录。DAP-Link 虚拟串口可用于 printf 日志输出。
 
 ## 许可证
 

@@ -6,13 +6,15 @@
  *
  * Target:  STSPIN32G4 (Cortex-M4 @ 170 MHz)
  * HAL:     STM32 HAL Library
- * RTOS:    RT-Thread (RTT)
- * Debug:   SEGGER RTT
+ * RTOS:    FreeRTOS
+ * Debug:   DAP-Link (SWD + Serial)
  */
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32g4xx_hal.h"
-#include "SEGGER_RTT.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include <stdio.h>
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -35,8 +37,55 @@ void GPIO_Init(void)
 {
     // TODO: Configured by STM32CubeMX
     // - LED pins
-    // - Debug SWD pins
+    // - Debug SWD pins (SWCLK/SWDIO for DAP-Link)
     // - Motor control IOs
+}
+
+/**
+ * @brief  UART Initialization (for DAP-Link serial printf)
+ */
+void UART_Init(void)
+{
+    // TODO: Configure UART for DAP-Link debug output
+    // DAP-Link provides a virtual COM port over SWD
+}
+
+/**
+ * @brief  Redirect printf to UART (for DAP-Link virtual COM)
+ */
+#ifdef __GNUC__
+int _write(int file, char *ptr, int len)
+{
+    HAL_UART_Transmit(&huart1, (uint8_t *)ptr, len, HAL_MAX_DELAY);
+    return len;
+}
+#endif
+
+/**
+ * @brief  Motor Control Task
+ */
+void MotorCtrl_Task(void *pvParameters)
+{
+    printf("[INFO] Motor Control Task started\n");
+    while (1)
+    {
+        // TODO: Motor control loop (FOC / 6-step commutation)
+        vTaskDelay(pdMS_TO_TICKS(1));
+    }
+}
+
+/**
+ * @brief  Heartbeat Task
+ */
+void Heartbeat_Task(void *pvParameters)
+{
+    printf("[INFO] Heartbeat Task started\n");
+    while (1)
+    {
+        HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+        printf("[INFO] Heartbeat - System Running\n");
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
 }
 
 /**
@@ -48,24 +97,26 @@ int main(void)
     HAL_Init();
     SystemClock_Config();
     GPIO_Init();
+    UART_Init();
 
-    /* Initialize SEGGER RTT */
-    SEGGER_RTT_Init();
-    SEGGER_RTT_printf(0, "========================================\n");
-    SEGGER_RTT_printf(0, "  STSPIN32G4 BLDC Motor Control Board\n");
-    SEGGER_RTT_printf(0, "  System Clock: 170 MHz\n");
-    SEGGER_RTT_printf(0, "  RT-Thread Initializing...\n");
-    SEGGER_RTT_printf(0, "========================================\n\n");
+    printf("========================================\r\n");
+    printf("  STSPIN32G4 BLDC Motor Control Board\r\n");
+    printf("  System Clock: 170 MHz\r\n");
+    printf("  RTOS: FreeRTOS\r\n");
+    printf("  Debug: DAP-Link\r\n");
+    printf("========================================\r\n\r\n");
 
-    /* TODO: RT-Thread Scheduler Start */
-    // rt_system_scheduler_start();
+    /* Create FreeRTOS Tasks */
+    xTaskCreate(Heartbeat_Task, "Heartbeat", 128, NULL, 1, NULL);
+    xTaskCreate(MotorCtrl_Task, "MotorCtrl", 512, NULL, 3, NULL);
 
-    /* Super Loop (if not using RTOS) */
+    /* Start FreeRTOS Scheduler */
+    printf("[INFO] Starting FreeRTOS Scheduler...\r\n");
+    vTaskStartScheduler();
+
+    /* Should never reach here */
     while (1)
     {
-        // Toggle LED or other heartbeat
-        HAL_Delay(500);
-        SEGGER_RTT_printf(0, "[INFO] Heartbeat - System Running\n");
     }
 }
 
@@ -76,7 +127,7 @@ int main(void)
  */
 void assert_failed(uint8_t *file, uint32_t line)
 {
-    SEGGER_RTT_printf(0, "[ASSERT] Wrong parameters value: file %s on line %d\r\n", file, line);
+    printf("[ASSERT] Wrong parameters value: file %s on line %d\r\n", file, line);
     while (1)
     {
     }
